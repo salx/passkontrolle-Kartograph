@@ -24,17 +24,26 @@ function map(map){ //sifu: what di I need to hand over? map? some container in t
 	});
 	
 	//load data into an object (containing objects wit key-value pairs)
+	var restrictions = //loading the data....see data-import-test
 
-//define a reColor method(data)
-	//me.currentRestriction = restrictions[ data.identifier ]
-	//call getLayer('countries').style( fill, setColor )
+	//define a reColor method(data)
+		//me.currentRestriction = restrictions[ data.identifier ]
+		//call getLayer('countries').style( fill, setColor )
 
-//define a setColor method(data)
-	//variable =  value of data.identifier ad color
-	//return colors [restriction-1]
+	//define a setColor method(data)
+		//variable =  value of data.identifier ad color
+		//return colors [restriction-1]
 
-//define an on-click event()
-	//call reColor(data)
+	//define an on-click event
+		map.addLayer('countries' {
+			styles: {
+				fill: '#fff' //etc. add some styling....
+			}
+
+			onClick: function(data){
+				getLayer('countries'.style(fill, setColor) )
+			}
+		});
 	
 	}
 }

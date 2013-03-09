@@ -11,7 +11,7 @@
 
 $(function() {
 
-    var map = $K.map('#map', 500, 700);
+    var map = $K.map('#map', 500, 700); //is ganz am Ende definiert, 
 
     function getColorByValue(e) {
             if (e < 1) return '#f9f9f9';
@@ -22,7 +22,7 @@ $(function() {
             return '#4f0101'
     }
 
-    function karte(btag) {
+    function karte(btag) { //frage: was ist "btag" hier? ein div? und: der programmiert hier NICHT OO, sondern macht alles in dieser Funktion
 
 
         function val(p) { return p ? Number(p[3]) : 0; }
@@ -33,7 +33,7 @@ $(function() {
         function getNPD(wkr) { return val(btag[wkr].NPD); }
 
         function getColor(data) {
-            var e = getBraun(data['wkr-nr']);
+            var e = getBraun(data['wkr-nr']); //ainterpetiere ich das richtig: die Daten der Wahlen stehen direkt im svg?
             return getColorByValue(e);
         }
 
@@ -54,7 +54,7 @@ $(function() {
             map.addLayer('bundeslaender');
 
             // do something with your map, add layers etc.
-            map.addLayer('wahlkreise', {
+            map.addLayer('wahlkreise', { //why add another layer???
                 styles: {
                     //'stroke-width': 0.25,
                     stroke: false,
