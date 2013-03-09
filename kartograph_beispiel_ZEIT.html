@@ -1,0 +1,145 @@
+
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/raphael.min.js"></script>
+        <script src="js/kartograph.js"></script>
+        <script src="js/jquery.qtip.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/jquery.qtip.css">
+        <script type="text/javascript">
+
+$(function() {
+
+    var map = $K.map('#map', 500, 700);
+
+    function getColorByValue(e) {
+            if (e < 1) return '#f9f9f9';
+            if (e < 2) return '#DFCBCB';
+            if (e < 3) return '#B27F7F';
+            if (e < 4) return '#934747';
+            if (e < 5) return '#6a0000';
+            return '#4f0101'
+    }
+
+    function karte(btag) {
+
+
+        function val(p) { return p ? Number(p[3]) : 0; }
+
+        function getBraun(wkr) { return getDVU(wkr) + getREP(wkr) + getNPD(wkr); }
+        function getDVU(wkr) { return val(btag[wkr].DVU); }
+        function getREP(wkr) { return val(btag[wkr].REP); }
+        function getNPD(wkr) { return val(btag[wkr].NPD); }
+
+        function getColor(data) {
+            var e = getBraun(data['wkr-nr']);
+            return getColorByValue(e);
+        }
+
+        map.loadMap('wk2.svg', function() {
+
+            map.addLayer('wahlkreise', {
+                styles: {
+                    fill: getColor,
+                    stroke: getColor
+                }
+            });
+
+
+            map.addLayer('bundeslaender', {
+                styles: { stroke: '#fff', 'stroke-width': 3, opacity: 0.15 }
+            });
+
+            map.addLayer('bundeslaender');
+
+            // do something with your map, add layers etc.
+            map.addLayer('wahlkreise', {
+                styles: {
+                    //'stroke-width': 0.25,
+                    stroke: false,
+                    fill: 'white',
+                    'fill-opacity': 0
+                },
+                mouseover: function(data, path) {
+                    path.attr({
+                        'stroke-width': 2,
+                        stroke: '#000'
+                    });
+                },
+                mouseout: function(data, path) {
+                    path.attr({
+                        stroke: false
+                    });
+                },
+                tooltips: function(data) {
+                    return [
+                        data['wkr-name'],
+                        'NPD: '+ getNPD(data['wkr-nr']).toFixed(1).replace(".",",") + '%'
+                        + '<br/>REP: '+ getREP(data['wkr-nr']).toFixed(1).replace(".",",") + '%'
+                        + '<br/>DVU: '+ getDVU(data['wkr-nr']).toFixed(1).replace(".",",") + '%'
+                        + '<br/>Summe = ' + getBraun(data['wkr-nr']).toFixed(1).replace(".",",") + '%</big>'
+                    ];
+                }
+            });
+
+        });
+        $("#key0").css("background-color", getColorByValue(0));
+        $("#key1").css("background-color", getColorByValue(1));
+        $("#key2").css("background-color", getColorByValue(2));
+        $("#key3").css("background-color", getColorByValue(3));
+        $("#key4").css("background-color", getColorByValue(4));
+        $("#key5").css("background-color", getColorByValue(5));
+    }
+
+
+    $.fn.qtip.defaults.style.classes = 'ui-tooltip-zon';
+
+    $.getJSON('btag2009.json', karte);
+
+});
+
+        </script>
+        <style type="text/css">
+
+#container {
+    width: 540px;
+    margin: 0;
+    position: relative;
+}
+
+#map {
+    width: 540px;
+}
+
+path {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#color-key td {
+    width: 50px;
+    height: 15px;
+    text-align: center;
+    font-family: Arial;
+    font-size: 11px;
+}
+
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="map"></div>
+            <div>
+                <table id="color-key" style="margin-top:20px;"><tbody>
+                    <tr id="cells">
+                        <td id="key0"></td><td id="key1"></td><td id="key2"></td><td id="key3"></td><td id="key4"></td><td id="key5"></td>
+                    </tr>
+                    <tr>
+                        <td>unter 1%</td><td>1 bis 2%</td><td>2 bis 3%</td><td>3 bis 4%</td><td>4 bis 5%</td><td>&uuml;ber 5%</td>
+                    </tr>
+                </tbody></table>
+            </div>
+        </div>
+    </body>
+</html>

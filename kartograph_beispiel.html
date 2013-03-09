@@ -1,0 +1,509 @@
+
+<html> 
+    <head> 
+        <meta http-equiv="X-UA-Compatible" content="IE=8" />
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+
+        <link rel="stylesheet" type="text/css" href="jquery.qtip.css"> 
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <style type="text/css">  
+            #container {
+                width: 540px;
+                margin: 0;
+                position: relative;
+            }
+             
+            #map {
+                width: 540px;
+                height: 375px;
+            }
+             
+            path {
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+             
+            #color-key td {
+                width: 50px;
+                height: 15px;
+                text-align: center;
+                font-family: Arial;
+                font-size: 12px;
+            }
+        </style>
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+        <script src="http://github.com/cowboy/jquery-dotimeout/raw/master/jquery.ba-dotimeout.js"></script>
+        <script src="raphael-min.js"></script>
+        <script src="kartograph.min.js"></script>
+        <script src="jquery.qtip.js"></script>
+        <script src="pie.js"></script>
+
+        <script type="text/javascript" src="countries/dict.js"></script>
+        <script type="text/javascript"> 
+            var berlinaleMap = function(mapdiv, year){
+                var me = this;
+                    me.map = Kartograph.map('#' + mapdiv, 900, 500);
+                    me.startYear = year;
+                    me.currentList = null;
+                    me.currentJury = [];
+                    
+                    function setColor(data){
+                        if(me.currentList.data.length == 0){return;}
+                        for (i=0;i<me.currentList.data.length;i++){
+                            var row = me.currentList.data[i];
+                            
+                            movies_country = row.Land_Translate;
+                            
+                            for(z=0;z<me.currentList.counts.length;z++){
+                                if(me.currentList.counts[z].Land_Translate == movies_country){
+                                    movies_number = me.currentList.counts[z].sm;
+                                    break;
+                                }
+                            }
+                            
+                            movies_year = row.Jahr;
+
+                            var nMov = parseInt(movies_number);
+                            
+                            if (movies_country == data.name){
+                                switch( true ){
+                                    case ( nMov == 1):
+                                        return '#daaeb5';
+                                    break;
+                                    case ( nMov == 2):
+                                        return '#d77e8d';
+                                    break;  
+                                    case ( nMov == 3):
+                                        return '#d74f65';
+                                    break;
+                                    case ( nMov == 4):
+                                        return '#d82b47';
+                                    break;
+                                    case ( nMov >= 5):
+                                        return '#d90023';
+                                    break;          
+                                    default:
+                                        return '#d82b47';
+                                    break;                              
+                                }
+                            }
+                        }                   
+                    }
+                    
+                    function setStroke(data){
+                        if(me.currentList.data.length == 0){return;}
+                        for (i=0;i<me.currentList.data.length;i++){
+                        
+                            var row = me.currentList.data[i];
+                            
+                            movies_country = row.Land_Translate;
+                            movies_award = row.Award;
+                            
+                            if (movies_country == data.name && movies_award == 1){
+                                return '#DAA520';
+                            }
+                            else if (movies_country == data.name && movies_award == 2){
+                                return '#C0C0C0';
+                            }
+                        }                   
+                    }
+                    
+                    function setStrokeWeight(data){
+                        if(me.currentList.data.length == 0){return;}
+                        for (i=0;i<me.currentList.data.length;i++){
+                        
+                            var row = me.currentList.data[i];
+                            
+                            movies_country = row.Land_Translate;
+                            movies_award = row.Award;
+                            
+                            if (movies_country == data.name && movies_award == 1){
+                                return 3;
+                            }
+                            else if (movies_country == data.name && movies_award == 2){
+                                return 3;
+                            }
+                        }                   
+                    }
+                    
+                    function setTooltipContent(countryname, mode){
+
+                        /*var mcount = [];
+                            for(i=0;i<me.currentList.data.length;i++){
+                                if(me.currentList.data[i].Land_Translate == countryname){
+                                    mcount.push(me.currentList.data[i]);
+                                }
+                            }
+                        //if(mcount.length==0){return false;}*/ 
+                        
+                        if(mode=="header"){
+                            
+                            for(z=0;z<me.currentList.counts.length;z++){
+                                if(me.currentList.counts[z].Land_Translate == countryname){
+                                    movies_number = me.currentList.counts[z].sm;
+                                    break;
+                                }
+                            }
+                            
+                            for(i=0;i<me.currentList.data.length;i++){
+                                if(me.currentList.data[i].Land_Translate == countryname){
+                                    
+                                    for(k=0;k<country_dict.length;k++){
+                                        if(countryname == country_dict[k].land_eng){
+                                            var c = country_dict[k].land_ger;
+                                            return "<span class='tipcategoryname'>" + c + ", "+ movies_number + " Film(e)</span>";
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            for(k=0;k<country_dict.length;k++){
+                                if(countryname == country_dict[k].land_eng){
+                                    var c = country_dict[k].land_ger;
+                                        return "<span class='tipcategoryname'>" + c + "</span>";
+                                    }
+                                }                           
+                        }
+                        else if(mode == 'content'){
+                            var content = '';
+                            
+                            for(z=0;z<me.currentList.counts.length;z++){
+                                if(me.currentList.counts[z].Land_Translate == countryname){
+                                    movies_number = me.currentList.counts[z].sm;
+                                    break;
+                                }
+                            }
+                            
+                            for(i=0;i<me.currentList.data.length;i++){
+                                if(me.currentList.data[i].Land_Translate == countryname){
+                                    //content += "<span class='tipcategoryname'>"+ movies_number +" Wettbewerbs-Film(e)</span><br>";
+                                    content += "<span class='tipcategoryname'></span>";
+                                    break;
+                                }
+                            }
+                            if(content == ''){
+                                return "<span class='movie'>Kein Wettbewerbs-Beitrag</span>";
+                            }
+                            
+                            var moviesPerCountry = [];
+                            for(i=0;i<me.currentList.data.length;i++){
+                                if(me.currentList.data[i].Land_Translate == countryname){
+                                    moviesPerCountry.push(me.currentList.data[i]);
+                                }
+                            }
+                            
+                            var mList = "";
+                            
+                            if(moviesPerCountry.length > 0){    
+                                for(i=0;i<moviesPerCountry.length;i++){
+                                    if(moviesPerCountry[i].Award == 1){mList += '<span class="gold">'+moviesPerCountry[i].Titel+'</span>';}
+                                    else if(moviesPerCountry[i].Award == 2){mList += '<span class="silver">'+moviesPerCountry[i].Titel+'</span>';}
+                                    else{mList += '<span class="movie">'+moviesPerCountry[i].Titel+'</span>';}
+                                }                       
+                            }
+                            
+                            content += mList;
+                            
+                            return content;
+                        }
+                    }
+                    
+                    function setJuryTooltip(data, mode){
+                        switch(mode){
+                            case "content":
+                                var juryMembers = '';
+                                for(i=0;i<me.currentJury.length;i++){
+                                    var row = me.currentJury[i];
+                                    if(row.country == data.country){
+                                        juryMembers += '<span style="display:block;width:100%;font-family:Arial;font-size:10px;">' + row.name + '</span>';
+                                    }
+                                }
+                                return juryMembers;
+                            break;
+                            case "header":
+                                for(i=0;i<country_dict.length;i++){
+                                    if(data.country == country_dict[i].land_eng){
+                                        var c = country_dict[i].land_ger;
+                                        return "<span style='font-weight:bold;font-family:Arial;font-size:12px;'>Jury-Mitglieder aus " + c + " ("+data.jahr+")</span>";
+                                    }
+                                }
+                                
+                            break;
+                        }
+                    }
+                    
+                    function setCircleSize(anzahl){
+                        switch(true){
+                            case (anzahl <= 2):
+                                return 3;
+                            break;
+                            case (anzahl == 3):
+                                return 4;
+                            break;
+                            case (anzahl <= 6 && anzahl > 3):
+                                return 6;
+                            break;
+                            case (anzahl <= 9 && anzahl > 6):
+                                return 12;
+                            break;      
+                        }
+                    }
+                    
+                    function setJuryLocation(data){
+                        if(data.lat=='' || data.lng==''){
+                            return false;
+                        }
+                        else
+                        {
+                            return [data.lng, data.lat]
+                        }
+                    }
+                    
+                    me.setMapWhite = function(){
+                        
+                        me.currentList = null;
+                        
+                        me.map.getLayer('countries').style('fill', '#FFFFFF');
+                        me.map.getLayer('countries').style('stroke', '#000000');
+                        me.map.getLayer('countries').style('stroke-width', 0.5);
+                        
+                        //Remove all symbols from the map
+                        /*if(me.map.symbolGroups != undefined){
+                            me.map.removeSymbols();
+                        }*/ 
+                        //console.log(me.map.symbolGroups);
+
+                        //$("#filmesum").html(" 0 Filme");                      
+                    }
+                    
+                    me.initialize = function(year){
+                        $.fn.qtip.defaults.style.classes = 'qtip-bootstrap';
+                        //$.fn.qtip.defaults.style.def = false;
+                         
+                        me.map.loadMap('world.svg', function() { //load Maop allein tut gar nichts
+
+                            //CHLOROPLETH FOR FILMS, STROKE FOR AWARDS (1=GOLD, 2=SILVER)  
+                            me.map.addLayer('countries', { //'countires' bezieht sich auf die svg group, die wird dann in einen layer gerendert
+                                style:{
+                                    'stroke-width': 0.5
+                                }
+                            });                         
+                        });
+                        
+                        setTimeout(function(){
+                            $.getJSON("json/"+me.startYear+".json", me.reColorCountries);
+                        
+                            /*var jqxhr = $.getJSON("jury/"+me.startYear+"_jury.json", function(data){
+                                me.paintJurySymbols(data);
+                            })
+                            .error(function() { 
+                                if(me.map.symbolGroups != undefined){
+                                    me.map.removeSymbols();
+                                }
+                            });*/                       
+                        }, 1500);                       
+                            
+
+                    }
+                                        
+                    me.reColorCountries = function(data){
+                        
+                        //$("#filmesum").html(" "+data.count+" Filme");
+                        
+                        //Copy results to me.currentList
+                        me.currentList = $.parseJSON(JSON.stringify(data));
+
+                        // jedes ELement der 'countries' Gruppe wird eingefärbt
+                        // das funktioniert weil im svg html5 data-attributes eingebunden sind
+                        me.map.getLayer('countries').style('fill', '#FFFFFF');
+                        me.map.getLayer('countries').style('stroke', '#000000');
+                        me.map.getLayer('countries').style('stroke-width', 0.5);                    
+                        me.map.getLayer('countries').style('fill', setColor);
+                        me.map.getLayer('countries').style('fill-opacity', 1);
+                        me.map.getLayer('countries').style('stroke', setStroke);
+                        me.map.getLayer('countries').style('stroke-width', setStrokeWeight);                    
+                        
+                        me.map.getLayer('countries').tooltips(function(data){
+                            return [setTooltipContent(data.name, 'header'), setTooltipContent(data.name, 'content')];
+                        });                 
+                    }
+
+                    me.paintJurySymbols = function(data){
+                        
+                        if(data.data[0].country=="-" || data.data[0].country==undefined || data.data[0].country==""){
+                            if(me.map.symbolGroups != undefined){
+                                me.map.removeSymbols();
+                            }                       
+                            return false;
+                        }
+                        
+                        //Remove all symbols from the map
+                        if(me.map.symbolGroups != undefined){
+                            me.map.removeSymbols();
+                        }
+                        
+                        //Erase contents of the data container array
+                        if(me.currentJury.length>0){
+                            while(me.currentJury[0]){
+                                me.currentJury.pop();
+                            }
+                            me.currentJury.length = 0;
+                        }
+                        
+                        //Fill the data container array again with the new contents
+                        $.each(data.data, function(key,value){
+                            me.currentJury.push({country: value.country, lat: value.lat, lng: value.lng, anzahl: parseInt(value.number), jahr: value.year, name: value.juryname});
+                        });
+                        
+                        //Then begin to paint the new symbols right away and attach their tooltips
+                            
+                        me.map.addSymbols({
+                            type: $K.Bubble,
+                            data: me.currentJury,
+                            location: setJuryLocation,
+                            radius: function(data) {
+                                return setCircleSize(data.anzahl);
+                            },
+                            tooltip: function(data) {
+                                return [setJuryTooltip(data, 'header'), setJuryTooltip(data, 'content')];
+                            },                          
+                            style: 'fill:#ffffff; stroke: #000000; stroke-width: 0.3; fill-opacity: 1;z-index:999'
+                        });                     
+                    }                   
+            };
+            
+                $(function() {
+                    
+                    $("#slider").slider();
+      
+                    var sliderBar = $('#slider'),
+                        play_btn = $('#play-btn');
+                    var currentYear = null;
+                    var currentResponse = null;
+                    
+                    var m = new berlinaleMap('map', '1983');
+                        m.initialize();   
+      
+      
+                    sliderBar.slider({
+                        'min': 1951,
+                        'max': 2013,
+                        'step': 1,
+                        value: 1983,
+                        slide: function( event, ui ) {
+                            var increment = ui.value
+                            //increment = ui.value;
+                            var handle = ui.handle;
+                  
+                            $('div.values-container').html(increment);
+                        },
+                        change: function(event, ui) {
+                            var increment = ui.value;
+                            currentYear = increment;
+                            
+                            var handle = ui.handle;
+                            $('div.values-container').html(increment);
+                            
+                            //Default the map when 1970
+                            //if(increment == 1970){m.setMapWhite();return;}
+                            
+                            //Re-color the countries when stepping to a new year
+                            $.getJSON("json/"+increment+".json", m.reColorCountries);                           
+                            
+                            /*var jqxhr = $.getJSON("jury/"+increment+"_jury.json", function(data){
+                                m.paintJurySymbols(data);
+                                })
+                                .error(function() { 
+                                    if(m.map.symbolGroups != undefined){
+                                        m.map.removeSymbols();
+                                    }
+                                });*/
+                        }, 
+                        start: function(event, ui) {
+                            $.doTimeout( 'slider_timer' );
+                            $('.play-btn').removeClass('active').html('<img src="play.jpg">');
+                                sliderBar.find('a').addClass('hover');
+                            }, 
+                            stop: function(event, ui) {
+                                sliderBar.find('a').removeClass('hover');
+                            }
+                    });
+
+                    play_btn.click(function(e) {
+                        e.preventDefault();
+                    
+                        if ($(this).hasClass('active')) {
+                            $(this).removeClass('active').html('<img src="play.jpg">');
+                            $.doTimeout( 'slider_timer' );
+                        } else {
+                            $(this).addClass('active').html('<img src="pause.jpg">');
+                            
+                            if (sliderBar.slider('option','value') == sliderBar.slider('option','max')) {
+                                sliderBar.slider('value', '0');
+                            }
+                    
+                            $.doTimeout('slider_timer', 2500, function(){
+                                sliderBar.slider('value', Number(sliderBar.slider('option','value')) + 1 );
+
+                                if ( sliderBar.slider('option','value') == sliderBar.slider('option','max') ) {
+                                    play_btn.removeClass('active').html('<img src="play.jpg">');
+                                    return false;
+                                }
+                                return true;
+                            });
+                        }
+                    }); 
+                });         
+        </script>
+    
+    </head>
+    <body>
+        <!-- HUELLE für die ganze Karte-->
+
+        <div id="map_wrapper">
+
+            <!-- KOPF der Karte -->
+            <div id="map_headerbox">
+                <h3>Interaktive Grafik</h3>
+                <h2>Woher die Filme und die Gewinner der Berlinale kommen</h2>
+                <p>Mehr als 1000 Filme sind seit 1951 im Berlinale-Wettbewerb gelaufen. Dutzende Goldene und Silberne Bären wurden verliehen. Wir haben sie auf einer interaktiven Weltkarte zusammengefasst. <em>Fahren Sie mit dem Mauszeiger über die Länder, um die Filmtitel zu sehen. </em><a href="http://www.twitter.com/juliustroeger"> Von Julius Tröger</a></p>
+
+              <a href="#" id="play-btn" class="play-btn" style="float:left;"><img src="play.jpg"></a> 
+              
+              <!-- <div style="float:left; font-size: 32px; font-weight: bold; color:#acacac; margin-right: 5px;"><a href="#">‹</a> </div>  -->
+                <div id="slider" style="width:800px; margin-left: 40px; margin-top: 20px;"></div><br/> 
+              <!-- <div style="float:left; font-size: 32px; font-weight: bold; color:#acacac;"> ›</div>  -->
+
+
+            </div>         
+
+            <div class="values-container" style="float:left; font-size: 48px; font-weight: bold; margin-right: 5px; margin-top: 25px; margin-left: 750px; clear:right;"> 1983 </div>
+            <!--<div id="filmesum" style="float:left; font-size: 12px; font-weight: bold; margin-right: 5px; margin-left: 800px; margin-top:0px;"> </div>-->
+
+            <div id="legende" style="position:absolute; margin-top: 300px; margin-left: 50px;">
+                <div style="background-color: #daaeb5; width: 20px; height: 10px; float:left; margin-right: 3px;">  </div> <span style="color: #999999; font-size: 10px"> 1 Film </span><br/>
+                <div style="background-color: #d77e8d; width: 20px; height: 10px; float:left; margin-right: 3px;"> </div> <span style="color: #999999; font-size: 10px"> 2 Filme </span><br/>
+                <div style="background-color: #d74f65; width: 20px; height: 10px; float:left; margin-right: 3px;">  </div> <span style="color: #999999; font-size: 10px"> 3 Filme </span><br/>
+                <div style="background-color: #d82b47; width: 20px; height: 10px; float:left; margin-right: 3px;">  </div> <span style="color: #999999; font-size: 10px"> 4 Filme </span><br/>
+                <div style="background-color: #d90023; width: 20px; height: 10px; float:left; margin-right: 3px;">  </div> <span style="color: #999999; font-size: 10px"> 5+ Filme </span><br/><br/>
+                <div style="background-color: #daa521; width: 30px; height: 5px; float:left; margin-right: 3px;">  </div> <span style="color: #999999; font-size: 10px"> Goldener Bär </span><br/>
+                <div style="background-color: #c0c0c0; width: 30px; height: 5px; float:left; margin-right: 3px;">  </div> <span style="color: #999999; font-size: 10px"> Silberner Bär </span><br/><br/>
+                <span style="color: #999999; font-size: 10px">Filme mit verschiedenen<br/> Herkunftsländern<br/>werden mehrfach gezählt.</span>
+            </div>
+            
+            <div id="map" style="margin-top:20px;"></div>
+
+            <!-- FUSS der Karte mit BU oder Funktioben -->
+            <div id="map_footerbox">
+                <div id="map_source">Daten: <a target="_blank" href="http://www.berlinale.de/de/archiv/archivsuche/Archivsuche.php?rp=1&page=1&searchareas=programm&lang=DE">Berlinale Archiv</a><br/>Mitarbeit: Tamás Hajdú
+                </div>
+            </div><!-- Ende FUSS -->
+
+        </div><!-- Ende HUELLE -->
+        
+    </body> 
+</html> 
