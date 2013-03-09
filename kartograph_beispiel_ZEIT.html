@@ -22,10 +22,10 @@ $(function() {
             return '#4f0101'
     }
 
-    function karte(btag) { //frage: was ist "btag" hier? ein div? und: der programmiert hier NICHT OO, sondern macht alles in dieser Funktion
+    function karte(btag) { //frage: btag ist hier das datenset mit den ergebnissen der bundestagswahl, korrekt? das wird da hineingeladen bzw. der kartenfnktion übergeben. es muss eigentlich irgendwo vorher schon in die variable geladen worden sein, oder?
 
 
-        function val(p) { return p ? Number(p[3]) : 0; }
+        function val(p) { return p ? Number(p[3]) : 0; } //eine validierungsfunktion, korrekt?
 
         function getBraun(wkr) { return getDVU(wkr) + getREP(wkr) + getNPD(wkr); }
         function getDVU(wkr) { return val(btag[wkr].DVU); }
@@ -33,7 +33,7 @@ $(function() {
         function getNPD(wkr) { return val(btag[wkr].NPD); }
 
         function getColor(data) {
-            var e = getBraun(data['wkr-nr']); //ainterpetiere ich das richtig: die Daten der Wahlen stehen direkt im svg?
+            var e = getBraun(data['wkr-nr']); //
             return getColorByValue(e);
         }
 
