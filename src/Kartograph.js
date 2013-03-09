@@ -7,9 +7,12 @@ pseudocode
 //define a map - variable
 var map = //muss ich hier ein svg definieren? mir ist an der stelle der Zeit-code nicht klar
 
-//define an array with three color-codes
-var colorCodes = [#aaa, #bbb, #ccc]; //sifu: was spricht dagegen, 
-//hier auch eine funktion mit if-statement zu machen (siehe ZEIT)
+//define a get colorByValue Method. Here colors will be assigned
+function getColorByValue(e){
+	if( e == 1 ) return #aaa;
+	if( e == 2 ) return #bbb;
+	if( 3 == 3 ) return #ccc;
+}
 
 //define a variable containing the data about the travel restrictions
 var restrictions = //enter the data....
@@ -34,7 +37,7 @@ function map(restrictions){ //sifu: how about I hand over the restrictions varia
 		//variable =  value of data.identifier ad color
 		//return colors [restriction-1]
 		setColor('countries'){
-			
+
 		}
 
 	//define an on-click event
