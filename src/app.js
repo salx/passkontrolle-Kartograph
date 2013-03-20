@@ -9,11 +9,7 @@
 
 	//define a get colorByValue Method. Here colors will be assigned by a value between 1 and 3
 
-	function getColorByValue(e){
-		if( e == 1 ) return "#aaa";
-		if( e == 2 ) return "#bbb";
-		if( e == 3 ) return "#ccc";
-	}
+	var colors= ["#0cc", "#c0c", "#cc0"];
 
 //define a variable containing the data about the travel restrictions
 /*
@@ -46,7 +42,23 @@ var restrictions =  124: {
     });
 
     map.loadMap( "world.svg", function(){
-    	map.addLayer( "countries" );
+    	map.addLayer( "countries", {
+
+    		click: function( data ){
+    			var clickedCountry = data["iso-n3"];
+    			//console.log( clickedCountry );
+    			var currentRestrictions = result[clickedCountry];
+    			//console.log( currentRestrictions );
+    			map.getLayer( "countries" ).style( "fill", function( data ){
+    				//console.log( "GetLayer" );
+    				var currentCountry = data["iso-n3"];
+    				//console.log( currentCountry );
+    				console.log( currentRestrictions[currentCountry] );
+    				console.log( colors[currentRestrictions[currentCountry]-1] );
+    				return "#0f0";
+    			} )
+    		}
+    	});
     } );
 
 })();
