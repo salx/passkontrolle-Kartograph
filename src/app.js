@@ -5,7 +5,7 @@
 (function(){
 
 	//define a map - variable
-	var map = Kartograph.map( "#map", 500, 700 );
+	var map = Kartograph.map( "#map", 700, 500 );
 
 	//define a get colorByValue Method. Here colors will be assigned by a value between 1 and 3
 
@@ -42,9 +42,12 @@ var restrictions =  124: {
       		var sourceLand = line[0]; 
       		result[sourceLand]=kvPair;
       	}
-      	console.log( result );
+      	//console.log( result );
     });
 
+    map.loadMap( "world.svg", function(){
+    	map.addLayer( "countries" );
+    } );
 
 })();
 
