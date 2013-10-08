@@ -18,9 +18,6 @@ var restrictions =  124: {
       840: 3,
       76: 1
       },
-      //Testdata
-      //sifu: how would I load the data without using d3.xhr?? (see testcode)
-      //answers: I'm using D3. because it's wurscht here (no SVG)
       */ 
     var result = {};
     d3.xhr( "matrix_testData_import_num.tsv", function(d){
@@ -47,18 +44,16 @@ var restrictions =  124: {
     			fill: '#ddd'
     		},
     		click: function( data ){
-    			console.info( 'sdf')
-    			var clickedCountry = data["iso-n3"];
+    			var clickedCountry = parseInt(data["iso-n3"]).toString();
     			var currentRestrictions = result[clickedCountry];
     			map.getLayer( "countries" ).style( "fill", function( data ){
-    				var currentCountry = data["iso-n3"];
-    				var color = colors[currentRestrictions[currentCountry]-1];
-    				if( color ) {
-    					return color;
-    				} else {
-    					return '#ddd';
-    				}
-      			} );
+    				var currentCountry = parseInt(data["iso-n3"]).toString();
+            if ( currentCountry === clickedCountry ){
+              return '#ddd';
+            }else {
+    				  return colors[currentRestrictions[currentCountry]-1];
+            }
+      		} );
     		}
     	} );
 
